@@ -98,12 +98,15 @@ func getTableName(m map[string]interface{}, result interface{}) string {
 func addHook(f *Hook, config ...*admin.Config) {
 	f.Admin.AddMenu(&admin.Menu{Name: "Hook"})
 	hookTypeResource := f.Admin.AddResource(&ResourceModel{}, &admin.Config{
-		Menu:       []string{"Hook"},
+		Menu: []string{"Hook"},
 		Permission: roles.Allow(roles.Read, roles.Anyone).Allow(roles.Create, roles.Anyone).
 			Allow(roles.Delete, roles.Anyone),
 	})
 	setType(hookTypeResource, f)
-	hookTableResource := f.Admin.AddResource(&ResourceTableModel{}, &admin.Config{Menu: []string{"Hook"}})
+	hookTableResource := f.Admin.AddResource(&ResourceTableModel{}, &admin.Config{
+		Menu:      []string{"Hook"},
+		Invisible: true,
+	})
 	AddTable(hookTableResource, f)
 }
 
