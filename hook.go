@@ -10,6 +10,7 @@ import (
 
 	"reflect"
 	"strings"
+	"github.com/qor/roles"
 )
 
 type Hook struct {
@@ -31,7 +32,6 @@ func New(Admin *admin.Admin) *Hook {
 		panic(err)
 		return nil
 	}
-	//type ss user 
 	//表对应新增的字段
 	tm := make(map[string]map[string]string)
 	for _, r := range flexs {
@@ -43,10 +43,6 @@ func New(Admin *admin.Admin) *Hook {
 			v := tm[r.Name]
 			v[r.FieldName] = r.Type
 		}
-		//err = addMeta(r, Admin)
-		//if err != nil {
-		//	continue
-		//}
 	}
 	//设置新的values
 	for k, v := range tm {
@@ -101,7 +97,11 @@ func getTableName(m map[string]interface{}, result interface{}) string {
 //增加Flexible resource
 func addHook(f *Hook, config ...*admin.Config) {
 	f.Admin.AddMenu(&admin.Menu{Name: "Hook"})
-	hookTypeResource := f.Admin.AddResource(&ResourceModel{}, &admin.Config{Menu: []string{"Hook"}})
+	hookTypeResource := f.Admin.AddResource(&ResourceModel{}, &admin.Config{
+		Menu:       []string{"Hook"},
+		Permission: roles.Allow(roles.Read, roles.Anyone).Allow(roles.Create, roles.Anyone).
+			Allow(roles.Delete, roles.Anyone),
+	})
 	setType(hookTypeResource, f)
 	hookTableResource := f.Admin.AddResource(&ResourceTableModel{}, &admin.Config{Menu: []string{"Hook"}})
 	AddTable(hookTableResource, f)
@@ -134,7 +134,6 @@ func getTables(db *gorm.DB) []string {
 	for rows.Next() {
 		var name string
 		rows.Scan(&name)
-
 
 		tables = append(tables, name)
 	}
