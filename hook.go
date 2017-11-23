@@ -171,16 +171,3 @@ func addMeta(rm ResourceModel, Admin *admin.Admin) error {
 	return nil
 }
 
-func delMeta(rm ResourceModel, Admin *admin.Admin) error {
-
-	rs := Admin.GetResource(rm.Name)
-	if rs == nil {
-		return errors.New("resource error")
-	}
-	m := &admin.Meta{
-		Name: utils.Upper(rm.FieldName),
-		Type: "hidden",
-	}
-	rs.Meta(m)
-	return nil
-}
