@@ -15,7 +15,7 @@ import (
 
 type Hook struct {
 	Admin   *admin.Admin
-	MTables map[string]interface{}
+	//MTables map[string]interface{}
 }
 
 func (Hook) ResourceName() string {
@@ -54,14 +54,14 @@ func New(Admin *admin.Admin) *Hook {
 func (f *Hook) resourceLoadNew(k string, v map[string]string) {
 	ar := f.Admin.GetResource(k)
 	utils.SetNewValue(ar, v)
-	vv := utils.GetSlices(ar)
-	if f.MTables == nil {
-		mm := make(map[string]interface{}, 0)
-		mm[k] = vv
-		f.MTables = mm
-	} else {
-		f.MTables[k] = vv
-	}
+	//vv := utils.GetSlices(ar)
+	//if f.MTables == nil {
+	//	mm := make(map[string]interface{}, 0)
+	//	mm[k] = vv
+	//	f.MTables = mm
+	//} else {
+	//	f.MTables[k] = vv
+	//}
 	//替换原有crud
 	f.replaceResource(ar)
 	newFiled := make([]string, 0)
@@ -85,7 +85,8 @@ func (f *Hook) resourceLoadNew(k string, v map[string]string) {
 func getTableName(m map[string]interface{}, result interface{}) string {
 	vv := reflect.TypeOf(result).Elem()
 	for k, v := range m {
-		////todo 两个相同的结构体会有问题
+		////todo 两个相同的结构体会有问题或者分页查询有问题
+		fmt.Println(vv.String())
 		if strings.Contains(fmt.Sprintf("%#v", v), vv.String()) {
 			return k
 		}
@@ -95,7 +96,7 @@ func getTableName(m map[string]interface{}, result interface{}) string {
 }
 
 //增加Flexible resource
-func addHook(f *Hook, config ...*admin.Config) {
+func addHook(f *Hook) {
 	f.Admin.AddMenu(&admin.Menu{Name: "Hook"})
 	hookTypeResource := f.Admin.AddResource(&ResourceModel{}, &admin.Config{
 		Menu: []string{"Hook"},

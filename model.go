@@ -108,7 +108,7 @@ func (f *Hook) deleteHookHandler(result interface{}, context *qor.Context) error
 			//删除更改对应的value
 			utils.DelValueKey(delRes, rm.FieldName)
 			//更改对应的mt
-			f.MTables[rm.Name] = utils.GetSlices(delRes)
+			//f.MTables[rm.Name] = utils.GetSlices(delRes)
 			//覆盖字段
 			delRes.OverrideEditAttrs(func() {
 				delRes.EditAttrs(getDelFieldAttrs(delRes.EditAttrs(), rm.FieldName))
@@ -151,19 +151,15 @@ func (f *Hook) saveHookHandler(i interface{}, context *qor.Context) error {
 		return errors.New("model error")
 
 	}
-	db := context.GetDB().Begin()
+	tx := context.GetDB().Begin()
 	if rm.ID == 0 {
-		err := db.Where("name=? and field_name=? ", rm.Name, rm.FieldName).FirstOrCreate(rm).Error
+		err := tx.Where("name=? and field_name=? ", rm.Name, rm.FieldName).FirstOrCreate(rm).Error
 		if err != nil {
-			db.Rollback()
+			tx.Rollback()
 			return err
 		}
 	} else {
-		err := db.Model(&ResourceModel{}).Where("id=?", rm.ID).Updates(rm).Error
-		if err != nil {
-			db.Rollback()
-			return err
-		}
+		return nil
 	}
 	var v string
 	switch rm.FieldType {
@@ -174,9 +170,9 @@ func (f *Hook) saveHookHandler(i interface{}, context *qor.Context) error {
 	case "VARCHAR":
 		v = fmt.Sprintf("%s(%d)", rm.FieldType, rm.FieldSize)
 	}
-	err := db.Exec(fmt.Sprintf("ALTER TABLE %s ADD %s %s NULL", rm.Name, rm.FieldName, v)).Error
+	err := tx.Exec(fmt.Sprintf("ALTER TABLE %s ADD %s %s NULL", rm.Name, rm.FieldName, v)).Error
 	if err != nil {
-		db.Rollback()
+		tx.Rollback()
 		return err
 	}
 	//todo 重新加载value
@@ -185,11 +181,11 @@ func (f *Hook) saveHookHandler(i interface{}, context *qor.Context) error {
 	f.resourceLoadNew(rm.Name, vm)
 	err = addMeta(*rm, f.Admin)
 	if err != nil {
-		db.Rollback()
+		tx.Rollback()
 		return err
 	}
 
-	db.Commit()
+	tx.Commit()
 	return nil
 }
 
@@ -213,9 +209,9 @@ func (f *Hook) saveHookTableHandler(i interface{}, context *qor.Context) error {
 	if !ok {
 		return errors.New("model error")
 	}
-	db := context.GetDB().Begin()
+	tx := context.GetDB().Begin()
 	if rm.ID == 0 {
-		err := db.Exec(`CREATE TABLE ? (
+		err := tx.Exec(`CREATE TABLE ? (
 			'id' int(10) unsigned NOT NULL AUTO_INCREMENT,
 			'created_at' timestamp NULL DEFAULT NULL,
 			'updated_at' timestamp NULL DEFAULT NULL,
@@ -224,14 +220,17 @@ func (f *Hook) saveHookTableHandler(i interface{}, context *qor.Context) error {
 			KEY 'idx_`+ rm.Name+ `_deleted_at' ('deleted_at')
 		)`, rm.Name).Error
 		if err != nil {
-			db.Rollback()
+			tx.Rollback()
 			return err
 		}
 	} else {
+		tx.Commit()
 		return nil
 	}
 	//todo 重写addResource方法
-	
-	db.Commit()
+
+
+
+	tx.Commit()
 	return nil
 }

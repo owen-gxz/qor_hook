@@ -65,14 +65,6 @@ func getReflect(m map[string]string) []reflect.StructField {
 	return nrs
 }
 
-func GetSlices(res *admin.Resource) interface{} {
-	sliceType := reflect.SliceOf(reflect.TypeOf(res.Value))
-	slice := reflect.MakeSlice(sliceType, 0, 0)
-	slicePtr := reflect.New(sliceType)
-	slicePtr.Elem().Set(slice)
-	return slicePtr.Interface()
-}
-
 func getType(ts string) reflect.Type {
 	var t reflect.Type
 	switch ts {
@@ -99,3 +91,6 @@ func getType(ts string) reflect.Type {
 	}
 	return t
 }
+
+
+
