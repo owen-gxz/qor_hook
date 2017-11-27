@@ -21,4 +21,14 @@ var (
 	}
 	Mysql  = "mysql"
 	Sqlite = "sqlite3"
+
+	disTables = map[string]bool{
+		"auth_identities":       true,
+		"qor_activities":        true,
+		"qor_jobs":              true,
+		"resource_models":       true,
+		"resource_table_models": true,
+		"scheduled_events":      true,
+		"translations":          true,
+	}
 )

@@ -107,14 +107,14 @@ func loadHook(db *gorm.DB) ([]ResourceModel, error) {
 
 func getTables(db *gorm.DB) []string {
 
-	dbType := db.Dialect().GetName()
+	//dbType := db.Dialect().GetName()
 	tables := make([]string, 0)
 	var showTable string
-	if dbType == Sqlite {
-		showTable = "SELECT name FROM sqlite_master WHERE type='table' order by name"
-	} else if dbType == Mysql {
-		showTable = "show tables"
-	}
+	//if dbType == Sqlite {
+	//	showTable = "SELECT name FROM sqlite_master WHERE type='table' order by name"
+	//} else if dbType == Mysql {
+	showTable = "show tables"
+	//}
 	rows, err := db.Raw(showTable).Rows() // (*sql.Rows, error)
 	if err != nil {
 		panic(err)
@@ -123,7 +123,9 @@ func getTables(db *gorm.DB) []string {
 	for rows.Next() {
 		var name string
 		rows.Scan(&name)
-
+		if disTables[name] {
+			continue
+		}
 		tables = append(tables, name)
 	}
 	return tables
