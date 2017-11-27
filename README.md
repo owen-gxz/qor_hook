@@ -8,8 +8,8 @@ qor-hook no restart,table add column--only mysql
 
 ## Demo
 ```
-    Admin := admin.New(&admin.AdminConfig{
-        DB: DB,
-    })
-	hook.New(Admin)
+Admin := admin.New(&admin.AdminConfig{
+    DB: DB,
+})
+hook.New(Admin)
 ```

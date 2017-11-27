@@ -1,21 +1,27 @@
 package hook
 
 import (
-	"github.com/qor/admin"
-	"github.com/jinzhu/gorm"
-	"fmt"
 	"errors"
-	"github.com/qor/hook/utils"
 	"encoding/json"
 
-	"reflect"
-	"strings"
+	"github.com/qor/admin"
+	"github.com/jinzhu/gorm"
+	"github.com/qor/hook/utils"
 	"github.com/qor/roles"
+	"github.com/qor/qor"
+	"github.com/qor/qor/resource"
 )
 
 type Hook struct {
-	Admin   *admin.Admin
-	//MTables map[string]interface{}
+	Admin       *admin.Admin
+	ResourceMap map[string]*FuncMap
+}
+
+type FuncMap struct {
+	FindManyHandler func(interface{}, *qor.Context) error
+	FindOneHandler  func(interface{}, *resource.MetaValues, *qor.Context) error
+	SaveHandler     func(interface{}, *qor.Context) error
+	DeleteHandler   func(interface{}, *qor.Context) error
 }
 
 func (Hook) ResourceName() string {
@@ -25,7 +31,7 @@ func (Hook) ResourceName() string {
 func New(Admin *admin.Admin) *Hook {
 	Admin.DB.AutoMigrate(&ResourceModel{}, &ResourceTableModel{})
 
-	fb := &Hook{Admin: Admin}
+	fb := &Hook{Admin: Admin, ResourceMap: make(map[string]*FuncMap)}
 	addHook(fb)
 	flexs, err := loadHook(Admin.DB)
 	if err != nil {
@@ -53,17 +59,9 @@ func New(Admin *admin.Admin) *Hook {
 
 func (f *Hook) resourceLoadNew(k string, v map[string]string) {
 	ar := f.Admin.GetResource(k)
-	utils.SetNewValue(ar, v)
-	//vv := utils.GetSlices(ar)
-	//if f.MTables == nil {
-	//	mm := make(map[string]interface{}, 0)
-	//	mm[k] = vv
-	//	f.MTables = mm
-	//} else {
-	//	f.MTables[k] = vv
-	//}
-	//替换原有crud
 	f.replaceResource(ar)
+	utils.SetNewValue(ar, v)
+	//替换原有crud
 	newFiled := make([]string, 0)
 	for k, _ := range v {
 		newFiled = append(newFiled, utils.Upper(k))
@@ -80,19 +78,6 @@ func (f *Hook) resourceLoadNew(k string, v map[string]string) {
 	ar.OverrideShowAttrs(func() {
 		ar.ShowAttrs(ar.ShowAttrs(), newFiled)
 	})
-}
-
-func getTableName(m map[string]interface{}, result interface{}) string {
-	vv := reflect.TypeOf(result).Elem()
-	for k, v := range m {
-		////todo 两个相同的结构体会有问题或者分页查询有问题
-		fmt.Println(vv.String())
-		if strings.Contains(fmt.Sprintf("%#v", v), vv.String()) {
-			return k
-		}
-	}
-
-	return ""
 }
 
 //增加Flexible resource
@@ -171,4 +156,3 @@ func addMeta(rm ResourceModel, Admin *admin.Admin) error {
 	rs.Meta(m)
 	return nil
 }
-
