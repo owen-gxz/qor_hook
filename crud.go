@@ -92,10 +92,10 @@ func (f *Hook) replaceResource(re *admin.Resource) {
 			DeleteHandler:   re.DeleteHandler,
 		}
 		f.ResourceMap[re.Name] = &fm
+		re.FindManyHandler = f.newFindManyHandler(re)
+		re.FindOneHandler = f.newFindOneHandler(re)
+		re.SaveHandler = f.newSaveHandler(re)
+		re.DeleteHandler = f.newDeleteHandler(re)
 	}
-	re.FindManyHandler = f.newFindManyHandler(re)
-	re.FindOneHandler = f.newFindOneHandler(re)
-	re.SaveHandler = f.newSaveHandler(re)
-	re.DeleteHandler = f.newDeleteHandler(re)
 
 }
