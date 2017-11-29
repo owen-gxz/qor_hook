@@ -19,8 +19,7 @@ var (
 		"DATETIME",
 		"INT",
 	}
-	Mysql  = "mysql"
-	Sqlite = "sqlite3"
+	Mysql = "mysql"
 
 	disTables = map[string]bool{
 		"auth_identities":       true,
