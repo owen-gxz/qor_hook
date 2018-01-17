@@ -6,7 +6,7 @@ import (
 
 	"github.com/qor/admin"
 	"github.com/jinzhu/gorm"
-	"github.com/qor/hook/utils"
+	"github.com/owengaozhen/qor-hook/utils"
 	"github.com/qor/roles"
 	"github.com/qor/qor"
 	"github.com/qor/qor/resource"

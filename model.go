@@ -7,7 +7,7 @@ import (
 	"errors"
 	"github.com/qor/roles"
 	"fmt"
-	"github.com/qor/hook/utils"
+	"github.com/owengaozhen/qor-hook/utils"
 )
 
 //数据库默认使用mysql

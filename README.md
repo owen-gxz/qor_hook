@@ -1,6 +1,5 @@
 ```
-git clone git@github.com:owengaozhen/qor-hook.git hook
-mv -f hook/ $GOPATH/src/github.com/qor/
+go get github.com/qor-hook
 ```
 
 qor-hook no restart,table add column--only mysql
@@ -11,5 +10,5 @@ qor-hook no restart,table add column--only mysql
 Admin := admin.New(&admin.AdminConfig{
     DB: DB,
 })
-hook.New(Admin)
+qor-hook.New(Admin)
 ```
